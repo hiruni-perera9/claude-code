@@ -61,11 +61,16 @@ class AnomalyDetectionTrainer:
                 if isinstance(inputs, np.ndarray):
                     inputs = torch.from_numpy(inputs).float()
                 elif isinstance(inputs, list):
-                    inputs = torch.tensor(inputs, dtype=torch.float32)
+                    # Check if list contains tensors
+                    if len(inputs) > 0 and torch.is_tensor(inputs[0]):
+                        inputs = torch.stack(inputs)
+                    else:
+                        inputs = torch.tensor(inputs, dtype=torch.float32)
                 else:
                     raise TypeError(f"Unexpected input type: {type(inputs)}")
-            else:
-                # If already tensor, ensure it's float type
+
+            # Ensure float type
+            if inputs.dtype != torch.float32:
                 inputs = inputs.float()
 
             inputs = inputs.to(self.device)
@@ -116,11 +121,16 @@ class AnomalyDetectionTrainer:
                     if isinstance(inputs, np.ndarray):
                         inputs = torch.from_numpy(inputs).float()
                     elif isinstance(inputs, list):
-                        inputs = torch.tensor(inputs, dtype=torch.float32)
+                        # Check if list contains tensors
+                        if len(inputs) > 0 and torch.is_tensor(inputs[0]):
+                            inputs = torch.stack(inputs)
+                        else:
+                            inputs = torch.tensor(inputs, dtype=torch.float32)
                     else:
                         raise TypeError(f"Unexpected input type: {type(inputs)}")
-                else:
-                    # If already tensor, ensure it's float type
+
+                # Ensure float type
+                if inputs.dtype != torch.float32:
                     inputs = inputs.float()
 
                 inputs = inputs.to(self.device)
