@@ -62,10 +62,17 @@ def load_checkpoint_info():
         return None, None, None
 
     try:
-        with open(os.path.join(checkpoint_dir, 'config.json'), 'r') as f:
+        config_path = os.path.join(checkpoint_dir, 'config.json')
+        metadata_path = os.path.join(checkpoint_dir, 'metadata.json')
+
+        # Check if required files exist
+        if not os.path.exists(config_path) or not os.path.exists(metadata_path):
+            return None, None, None
+
+        with open(config_path, 'r') as f:
             config = json.load(f)
 
-        with open(os.path.join(checkpoint_dir, 'metadata.json'), 'r') as f:
+        with open(metadata_path, 'r') as f:
             metadata = json.load(f)
 
         metrics_path = './evaluation_metrics.json'
@@ -75,7 +82,11 @@ def load_checkpoint_info():
                 metrics = json.load(f)
 
         return config, metadata, metrics
+    except FileNotFoundError:
+        # Don't show error for missing files - this is expected before training
+        return None, None, None
     except Exception as e:
+        # Only show error for unexpected issues (e.g., corrupted JSON)
         st.error(f"Error loading checkpoint info: {str(e)}")
         return None, None, None
 
