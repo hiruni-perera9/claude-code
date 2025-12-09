@@ -51,7 +51,9 @@ class AnomalyDetectionTrainer:
 
         pbar = tqdm(dataloader, desc=f"Epoch {epoch} [Train]")
         for batch in pbar:
-            if isinstance(batch, tuple):
+            # Handle batch format - DataLoader can return different structures
+            if isinstance(batch, (tuple, list)) and len(batch) == 2:
+                # Standard format: (inputs, labels)
                 inputs, _ = batch
             else:
                 inputs = batch
@@ -60,17 +62,19 @@ class AnomalyDetectionTrainer:
             if not torch.is_tensor(inputs):
                 if isinstance(inputs, np.ndarray):
                     inputs = torch.from_numpy(inputs).float()
-                elif isinstance(inputs, list):
-                    # Check if list contains tensors
-                    if len(inputs) > 0 and torch.is_tensor(inputs[0]):
-                        inputs = torch.stack(inputs)
+                elif isinstance(inputs, (list, tuple)):
+                    # If it's a list/tuple, just take the first element (should be the data)
+                    if len(inputs) > 0:
+                        inputs = inputs[0] if torch.is_tensor(inputs[0]) else torch.tensor(inputs, dtype=torch.float32)
                     else:
-                        inputs = torch.tensor(inputs, dtype=torch.float32)
+                        raise ValueError("Empty batch received")
                 else:
-                    raise TypeError(f"Unexpected input type: {type(inputs)}")
+                    raise TypeError(f"Unexpected input type: {type(inputs)}, value: {inputs}")
 
             # Ensure float type
-            if inputs.dtype != torch.float32:
+            if not isinstance(inputs, torch.Tensor):
+                inputs = torch.tensor(inputs, dtype=torch.float32)
+            elif inputs.dtype != torch.float32:
                 inputs = inputs.float()
 
             inputs = inputs.to(self.device)
@@ -109,9 +113,11 @@ class AnomalyDetectionTrainer:
 
         with torch.no_grad():
             for batch in tqdm(dataloader, desc="Validating"):
-                if isinstance(batch, tuple):
+                # Handle batch format
+                if isinstance(batch, (tuple, list)) and len(batch) == 2:
                     inputs, labels = batch
-                    all_labels.extend(labels.cpu().numpy())
+                    if torch.is_tensor(labels):
+                        all_labels.extend(labels.cpu().numpy())
                 else:
                     inputs = batch
                     labels = None
@@ -120,17 +126,19 @@ class AnomalyDetectionTrainer:
                 if not torch.is_tensor(inputs):
                     if isinstance(inputs, np.ndarray):
                         inputs = torch.from_numpy(inputs).float()
-                    elif isinstance(inputs, list):
-                        # Check if list contains tensors
-                        if len(inputs) > 0 and torch.is_tensor(inputs[0]):
-                            inputs = torch.stack(inputs)
+                    elif isinstance(inputs, (list, tuple)):
+                        # If it's a list/tuple, just take the first element (should be the data)
+                        if len(inputs) > 0:
+                            inputs = inputs[0] if torch.is_tensor(inputs[0]) else torch.tensor(inputs, dtype=torch.float32)
                         else:
-                            inputs = torch.tensor(inputs, dtype=torch.float32)
+                            raise ValueError("Empty batch received")
                     else:
                         raise TypeError(f"Unexpected input type: {type(inputs)}")
 
                 # Ensure float type
-                if inputs.dtype != torch.float32:
+                if not isinstance(inputs, torch.Tensor):
+                    inputs = torch.tensor(inputs, dtype=torch.float32)
+                elif inputs.dtype != torch.float32:
                     inputs = inputs.float()
 
                 inputs = inputs.to(self.device)
