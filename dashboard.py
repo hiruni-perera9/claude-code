@@ -56,7 +56,9 @@ st.markdown("""
 
 def load_checkpoint_info():
     """Load model checkpoint information"""
-    checkpoint_dir = './checkpoints'
+    # Get the absolute path to the script directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    checkpoint_dir = os.path.join(script_dir, 'checkpoints')
 
     if not os.path.exists(checkpoint_dir):
         return None, None, None
@@ -64,9 +66,14 @@ def load_checkpoint_info():
     try:
         config_path = os.path.join(checkpoint_dir, 'config.json')
         metadata_path = os.path.join(checkpoint_dir, 'metadata.json')
+        model_path = os.path.join(checkpoint_dir, 'best_model.pt')
 
         # Check if required files exist
         if not os.path.exists(config_path) or not os.path.exists(metadata_path):
+            return None, None, None
+
+        # Also check if model file exists
+        if not os.path.exists(model_path):
             return None, None, None
 
         with open(config_path, 'r') as f:
@@ -75,7 +82,7 @@ def load_checkpoint_info():
         with open(metadata_path, 'r') as f:
             metadata = json.load(f)
 
-        metrics_path = './evaluation_metrics.json'
+        metrics_path = os.path.join(script_dir, 'evaluation_metrics.json')
         metrics = None
         if os.path.exists(metrics_path):
             with open(metrics_path, 'r') as f:
@@ -140,31 +147,54 @@ def render_home_page():
                         import subprocess
                         import sys
 
-                        # Run training
+                        # Get absolute path to ensure files are saved in the right place
+                        script_dir = os.path.dirname(os.path.abspath(__file__))
+                        train_script = os.path.join(script_dir, "train.py")
+
+                        # Run training with explicit working directory
                         result = subprocess.run(
-                            [sys.executable, "train.py"],
+                            [sys.executable, train_script],
                             capture_output=True,
                             text=True,
+                            cwd=script_dir,  # Set working directory
                             timeout=1800  # 30 minute timeout
                         )
 
                         if result.returncode == 0:
                             st.success("✅ Model trained successfully!")
-                            st.info("Now running evaluation...")
 
-                            # Run evaluation
-                            eval_result = subprocess.run(
-                                [sys.executable, "evaluate.py"],
-                                capture_output=True,
-                                text=True,
-                                timeout=600
-                            )
+                            # Verify checkpoint files were created
+                            checkpoint_dir = os.path.join(script_dir, 'checkpoints')
+                            model_path = os.path.join(checkpoint_dir, 'best_model.pt')
+                            config_path = os.path.join(checkpoint_dir, 'config.json')
 
-                            if eval_result.returncode == 0:
-                                st.success("✅ Evaluation completed! Please refresh the page.")
-                                st.balloons()
+                            if os.path.exists(model_path) and os.path.exists(config_path):
+                                st.success(f"✅ Checkpoint files created at: {checkpoint_dir}")
+                                st.info("Now running evaluation...")
+
+                                # Run evaluation
+                                eval_script = os.path.join(script_dir, "evaluate.py")
+                                eval_result = subprocess.run(
+                                    [sys.executable, eval_script],
+                                    capture_output=True,
+                                    text=True,
+                                    cwd=script_dir,
+                                    timeout=600
+                                )
+
+                                if eval_result.returncode == 0:
+                                    st.success("✅ Evaluation completed!")
+                                    st.balloons()
+                                    st.info("🔄 Please refresh the page to see your model results!")
+
+                                    # Add a refresh button
+                                    if st.button("🔄 Refresh Page"):
+                                        st.rerun()
+                                else:
+                                    st.warning("Model trained but evaluation failed. You can run `python evaluate.py` manually.")
                             else:
-                                st.warning("Model trained but evaluation failed. You can run `python evaluate.py` manually.")
+                                st.error(f"Training completed but checkpoint files not found at: {checkpoint_dir}")
+                                st.info("This might be a permissions issue. Try running training manually with `python train.py`")
                         else:
                             st.error(f"❌ Training failed:\n```\n{result.stderr}\n```")
 
@@ -172,6 +202,8 @@ def render_home_page():
                         st.error("Training timed out. Please train manually using `python train.py`")
                     except Exception as e:
                         st.error(f"Error during training: {str(e)}")
+                        import traceback
+                        st.code(traceback.format_exc())
 
         with col2:
             st.info("💡 Training takes 10-15 minutes. The model will be saved to `./checkpoints/` directory.")
@@ -693,6 +725,36 @@ def main():
         "Select Page:",
         ["🏠 Home", "📊 Model Performance", "🔍 Anomaly Detection"]
     )
+
+    # Add file diagnostics in sidebar (expandable)
+    with st.sidebar.expander("🔧 Diagnostics"):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        checkpoint_dir = os.path.join(script_dir, 'checkpoints')
+
+        st.write("**Paths:**")
+        st.code(f"Script dir: {script_dir}")
+        st.code(f"Checkpoint dir: {checkpoint_dir}")
+
+        st.write("**Files:**")
+        if os.path.exists(checkpoint_dir):
+            files = os.listdir(checkpoint_dir)
+            if files:
+                for f in files:
+                    st.text(f"✅ {f}")
+            else:
+                st.text("📁 Directory exists but is empty")
+        else:
+            st.text("❌ Checkpoint directory doesn't exist")
+
+        # Check for model files
+        model_path = os.path.join(checkpoint_dir, 'best_model.pt')
+        config_path = os.path.join(checkpoint_dir, 'config.json')
+        metadata_path = os.path.join(checkpoint_dir, 'metadata.json')
+
+        st.write("**Required files:**")
+        st.text(f"{'✅' if os.path.exists(model_path) else '❌'} best_model.pt")
+        st.text(f"{'✅' if os.path.exists(config_path) else '❌'} config.json")
+        st.text(f"{'✅' if os.path.exists(metadata_path) else '❌'} metadata.json")
 
     st.sidebar.markdown("---")
 
