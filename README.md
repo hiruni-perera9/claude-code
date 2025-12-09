@@ -63,7 +63,23 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-### 1. Train the Model
+### 0. Automated Setup (Recommended)
+
+```bash
+# Run the setup script - it will handle everything!
+./setup.sh
+```
+
+This script will:
+- Check if a trained model exists
+- Install dependencies if needed
+- Train the model automatically
+- Run evaluation
+- Set up the dashboard
+
+**Skip to step 4** after running setup.sh!
+
+### 1. Train the Model (Manual Method)
 
 ```bash
 python train.py
@@ -160,6 +176,7 @@ claude-code/
 ├── evaluate.py             # Comprehensive evaluation with metrics
 ├── inference.py            # Production inference script
 ├── dashboard.py            # Interactive Streamlit dashboard
+├── setup.sh                # Automated setup script (train + evaluate)
 ├── run_dashboard.sh        # Dashboard launch script
 ├── requirements.txt        # Python dependencies
 ├── README.md              # This file
