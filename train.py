@@ -56,6 +56,13 @@ class AnomalyDetectionTrainer:
             else:
                 inputs = batch
 
+            # Ensure inputs is a tensor
+            if not torch.is_tensor(inputs):
+                if isinstance(inputs, (list, np.ndarray)):
+                    inputs = torch.FloatTensor(inputs)
+                else:
+                    raise TypeError(f"Unexpected input type: {type(inputs)}")
+
             inputs = inputs.to(self.device)
 
             # Forward pass
@@ -98,6 +105,13 @@ class AnomalyDetectionTrainer:
                 else:
                     inputs = batch
                     labels = None
+
+                # Ensure inputs is a tensor
+                if not torch.is_tensor(inputs):
+                    if isinstance(inputs, (list, np.ndarray)):
+                        inputs = torch.FloatTensor(inputs)
+                    else:
+                        raise TypeError(f"Unexpected input type: {type(inputs)}")
 
                 inputs = inputs.to(self.device)
 
