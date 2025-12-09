@@ -30,7 +30,7 @@ class AnomalyDetectionTrainer:
         self.device = device
         self.optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
         self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-            self.optimizer, mode='min', factor=0.5, patience=5, verbose=True
+            self.optimizer, mode='min', factor=0.5, patience=5
         )
 
         # Loss function
