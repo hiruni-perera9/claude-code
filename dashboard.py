@@ -14,10 +14,11 @@ import os
 import torch
 from pathlib import Path
 
-from models import get_model
-from data_loader import PaleoDBLoader
-from inference import AnomalyDetector
-from evaluate import AnomalyDetectionEvaluator
+# Lazy imports - only import when needed to avoid startup failures
+# from models import get_model
+# from data_loader import PaleoDBLoader
+# from inference import AnomalyDetector
+# from evaluate import AnomalyDetectionEvaluator
 from sklearn.metrics import roc_curve, precision_recall_curve, auc, confusion_matrix
 
 # Page configuration
@@ -295,6 +296,10 @@ def render_home_page():
 
 def render_performance_page():
     """Render the model performance evaluation page"""
+    # Lazy imports
+    from models import get_model
+    from evaluate import AnomalyDetectionEvaluator
+
     st.markdown('<p class="main-header">📊 Model Performance Evaluation</p>', unsafe_allow_html=True)
 
     config, metadata, metrics = load_checkpoint_info()
@@ -524,6 +529,10 @@ def create_performance_plots(scores, labels, predictions, threshold):
 
 def render_detection_page():
     """Render the anomaly detection page"""
+    # Lazy imports
+    from data_loader import PaleoDBLoader
+    from inference import AnomalyDetector
+
     st.markdown('<p class="main-header">🔍 Anomaly Detection</p>', unsafe_allow_html=True)
 
     config, metadata, metrics = load_checkpoint_info()
