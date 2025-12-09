@@ -139,6 +139,17 @@ The dashboard provides:
 
 The dashboard will be available at `http://localhost:8501`
 
+### 5. Deploy to Production
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
+
+**Quick Deploy Options**:
+- **Streamlit Cloud** (Easiest, Free): https://share.streamlit.io
+- **Render** (Simple, Free tier): https://render.com
+- **Railway** (Modern, $5/month credit): https://railway.app
+
+⚠️ **Note**: Vercel is NOT compatible with Streamlit apps. See DEPLOYMENT.md for compatible platforms.
+
 ## Project Structure
 
 ```
@@ -152,6 +163,15 @@ claude-code/
 ├── run_dashboard.sh        # Dashboard launch script
 ├── requirements.txt        # Python dependencies
 ├── README.md              # This file
+├── DASHBOARD.md           # Dashboard documentation
+├── DEPLOYMENT.md          # Deployment guide
+├── Dockerfile             # Docker configuration
+├── Procfile               # Heroku configuration
+├── render.yaml            # Render configuration
+├── railway.json           # Railway configuration
+├── runtime.txt            # Python version specification
+├── .streamlit/            # Streamlit configuration
+│   └── config.toml        # Dashboard theme and settings
 ├── checkpoints/           # Saved model checkpoints
 │   ├── best_model.pt      # Best model weights
 │   ├── config.json        # Training configuration

@@ -451,6 +451,19 @@ For issues or questions:
 3. Check Streamlit logs
 4. Open an issue on GitHub
 
+## Deployment
+
+Want to deploy your dashboard to the cloud? See [DEPLOYMENT.md](DEPLOYMENT.md) for comprehensive deployment guides.
+
+**Supported Platforms**:
+- Streamlit Cloud (Recommended - Free)
+- Render (Free tier available)
+- Railway ($5/month credit)
+- Heroku (Paid)
+- Docker (Any cloud platform)
+
+⚠️ **Important**: Vercel is NOT compatible with Streamlit. Use one of the platforms above.
+
 ## License
 
 Same as the main project (MIT License)
