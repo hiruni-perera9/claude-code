@@ -726,6 +726,36 @@ def main():
         ["🏠 Home", "📊 Model Performance", "🔍 Anomaly Detection"]
     )
 
+    # Add file diagnostics in sidebar (expandable)
+    with st.sidebar.expander("🔧 Diagnostics"):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        checkpoint_dir = os.path.join(script_dir, 'checkpoints')
+
+        st.write("**Paths:**")
+        st.code(f"Script dir: {script_dir}")
+        st.code(f"Checkpoint dir: {checkpoint_dir}")
+
+        st.write("**Files:**")
+        if os.path.exists(checkpoint_dir):
+            files = os.listdir(checkpoint_dir)
+            if files:
+                for f in files:
+                    st.text(f"✅ {f}")
+            else:
+                st.text("📁 Directory exists but is empty")
+        else:
+            st.text("❌ Checkpoint directory doesn't exist")
+
+        # Check for model files
+        model_path = os.path.join(checkpoint_dir, 'best_model.pt')
+        config_path = os.path.join(checkpoint_dir, 'config.json')
+        metadata_path = os.path.join(checkpoint_dir, 'metadata.json')
+
+        st.write("**Required files:**")
+        st.text(f"{'✅' if os.path.exists(model_path) else '❌'} best_model.pt")
+        st.text(f"{'✅' if os.path.exists(config_path) else '❌'} config.json")
+        st.text(f"{'✅' if os.path.exists(metadata_path) else '❌'} metadata.json")
+
     st.sidebar.markdown("---")
 
     # Model info in sidebar
