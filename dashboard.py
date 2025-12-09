@@ -84,6 +84,103 @@ def render_home_page():
     """Render the home page"""
     st.markdown('<p class="main-header">🦕 PaleoDB Anomaly Detection Dashboard</p>', unsafe_allow_html=True)
 
+    config, metadata, metrics = load_checkpoint_info()
+
+    # Check if model exists - show prominent message if not
+    if config is None:
+        st.error("⚠️ **No Trained Model Found**")
+
+        st.markdown("""
+        ### 🚀 Quick Start Guide
+
+        To use this dashboard, you need to train a model first. Here's how:
+
+        **Option 1: Automatic Setup (Recommended)**
+        ```bash
+        ./setup.sh
+        ```
+        This script will:
+        - Check for dependencies
+        - Train the model automatically
+        - Run evaluation
+        - Set up everything for you
+
+        **Option 2: Manual Training**
+        ```bash
+        # Install dependencies
+        pip install -r requirements.txt
+
+        # Train the model (takes 10-15 minutes)
+        python train.py
+
+        # Evaluate the model
+        python evaluate.py
+        ```
+
+        **Option 3: Quick Training**
+        """)
+
+        col1, col2 = st.columns([1, 3])
+
+        with col1:
+            if st.button("🚀 Train Model Now", type="primary", help="Start training (takes 10-15 minutes)"):
+                with st.spinner("Training model... This will take several minutes."):
+                    try:
+                        import subprocess
+                        import sys
+
+                        # Run training
+                        result = subprocess.run(
+                            [sys.executable, "train.py"],
+                            capture_output=True,
+                            text=True,
+                            timeout=1800  # 30 minute timeout
+                        )
+
+                        if result.returncode == 0:
+                            st.success("✅ Model trained successfully!")
+                            st.info("Now running evaluation...")
+
+                            # Run evaluation
+                            eval_result = subprocess.run(
+                                [sys.executable, "evaluate.py"],
+                                capture_output=True,
+                                text=True,
+                                timeout=600
+                            )
+
+                            if eval_result.returncode == 0:
+                                st.success("✅ Evaluation completed! Please refresh the page.")
+                                st.balloons()
+                            else:
+                                st.warning("Model trained but evaluation failed. You can run `python evaluate.py` manually.")
+                        else:
+                            st.error(f"❌ Training failed:\n```\n{result.stderr}\n```")
+
+                    except subprocess.TimeoutExpired:
+                        st.error("Training timed out. Please train manually using `python train.py`")
+                    except Exception as e:
+                        st.error(f"Error during training: {str(e)}")
+
+        with col2:
+            st.info("💡 Training takes 10-15 minutes. The model will be saved to `./checkpoints/` directory.")
+
+        st.markdown("---")
+
+        st.markdown("""
+        ### 📖 About This System
+
+        Once trained, this dashboard will provide:
+        - **Model Performance Evaluation**: Interactive charts and comprehensive metrics
+        - **Anomaly Detection Interface**: Real-time inference on PaleoDB data
+        - **Rich Visualizations**: Plotly-powered interactive graphs
+
+        The system uses **microsoft/deberta-v3-small** transformer architecture adapted for tabular anomaly detection.
+        """)
+
+        return
+
+    # Normal home page content when model exists
     st.markdown("""
     ## Welcome to the PaleoDB Anomaly Detection System
 
@@ -106,8 +203,6 @@ def render_home_page():
     - Transformer decoder for reconstruction
     - Output projection to original feature space
     """)
-
-    config, metadata, metrics = load_checkpoint_info()
 
     if config is not None:
         st.markdown("### 📋 Model Information")

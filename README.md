@@ -63,7 +63,23 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-### 1. Train the Model
+### 0. Automated Setup (Recommended)
+
+```bash
+# Run the setup script - it will handle everything!
+./setup.sh
+```
+
+This script will:
+- Check if a trained model exists
+- Install dependencies if needed
+- Train the model automatically
+- Run evaluation
+- Set up the dashboard
+
+**Skip to step 4** after running setup.sh!
+
+### 1. Train the Model (Manual Method)
 
 ```bash
 python train.py
@@ -139,6 +155,17 @@ The dashboard provides:
 
 The dashboard will be available at `http://localhost:8501`
 
+### 5. Deploy to Production
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
+
+**Quick Deploy Options**:
+- **Streamlit Cloud** (Easiest, Free): https://share.streamlit.io
+- **Render** (Simple, Free tier): https://render.com
+- **Railway** (Modern, $5/month credit): https://railway.app
+
+⚠️ **Note**: Vercel is NOT compatible with Streamlit apps. See DEPLOYMENT.md for compatible platforms.
+
 ## Project Structure
 
 ```
@@ -149,9 +176,19 @@ claude-code/
 ├── evaluate.py             # Comprehensive evaluation with metrics
 ├── inference.py            # Production inference script
 ├── dashboard.py            # Interactive Streamlit dashboard
+├── setup.sh                # Automated setup script (train + evaluate)
 ├── run_dashboard.sh        # Dashboard launch script
 ├── requirements.txt        # Python dependencies
 ├── README.md              # This file
+├── DASHBOARD.md           # Dashboard documentation
+├── DEPLOYMENT.md          # Deployment guide
+├── Dockerfile             # Docker configuration
+├── Procfile               # Heroku configuration
+├── render.yaml            # Render configuration
+├── railway.json           # Railway configuration
+├── runtime.txt            # Python version specification
+├── .streamlit/            # Streamlit configuration
+│   └── config.toml        # Dashboard theme and settings
 ├── checkpoints/           # Saved model checkpoints
 │   ├── best_model.pt      # Best model weights
 │   ├── config.json        # Training configuration
