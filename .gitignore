@@ -44,6 +44,8 @@ checkpoints/
 *.json
 !requirements.txt
 !**/config.json
+!railway.json
+!render.yaml
 
 # Outputs
 *.png
