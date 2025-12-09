@@ -114,6 +114,31 @@ Arguments:
 - `--top-k`: Number of top anomalies to display
 - `--checkpoint-dir`: Model checkpoint directory (default: `./checkpoints`)
 
+### 4. Launch the Interactive Dashboard
+
+```bash
+# Quick start
+./run_dashboard.sh
+
+# Or directly with streamlit
+streamlit run dashboard.py
+```
+
+The dashboard provides:
+- **🏠 Home Page**: Overview of the model and quick metrics
+- **📊 Model Performance**: Comprehensive evaluation with interactive charts
+  - ROC curves and Precision-Recall curves
+  - Confusion matrix visualization
+  - Score distribution plots
+  - Detailed metrics table
+- **🔍 Anomaly Detection**: Interactive anomaly detection interface
+  - Fetch data directly from PaleoDB or upload CSV files
+  - Real-time anomaly detection with visualizations
+  - Top anomalies display with highlighting
+  - Download results as CSV
+
+The dashboard will be available at `http://localhost:8501`
+
 ## Project Structure
 
 ```
@@ -123,6 +148,8 @@ claude-code/
 ├── train.py                # Training pipeline with early stopping
 ├── evaluate.py             # Comprehensive evaluation with metrics
 ├── inference.py            # Production inference script
+├── dashboard.py            # Interactive Streamlit dashboard
+├── run_dashboard.sh        # Dashboard launch script
 ├── requirements.txt        # Python dependencies
 ├── README.md              # This file
 ├── checkpoints/           # Saved model checkpoints
